@@ -7,17 +7,17 @@
   when: inventory_hostname == play_hosts[0]
   sudo: False
   delegate_to: localhost
-  
+
 - name: Create .ssh directory on remote host
   file: path="~{{ ansible_ssh_user }}/.ssh" state=directory mode=0700
              owner="{{ ansible_ssh_user }}" group="{{ ansible_ssh_user }}"
-  
+
 - name: Assure known_hosts file exists to reduce superfluous logs
   copy: dest="{{ new_priv_key | dirname }}/known_hosts" content=''
   when: inventory_hostname == play_hosts[0]
   sudo: False
   delegate_to: localhost
-  
+
 - name: Remove previous failed run private key creations
   file: dest="{{ new_priv_key }}" state=absent
   when: inventory_hostname == play_hosts[0]
