@@ -1,7 +1,10 @@
 # ansible-role-sshkeys
 
 [Ansible](https://github.com/ansible/ansible) module for creating
-and rotating SSH keys on fleets of servers.
+and rotating SSH keys on fleets of servers.  The work was inspired (though
+dramatically altered and upgraded) by an
+[article about the topic](https://derpops.bike/2014/06/07/ssh-key-rotation-with-ansible/)
+authored (posted online) by Jesse Keating, June 7, 2014.
 
 ## Requirements
 
@@ -38,14 +41,22 @@ Defaults to "{{ new_priv_key }}.pub" and that's sufficient for the vast majority
     - packate: False
 ```
 
-## License
+# License and Copyright
+ 
+Copyright 2015 VMware, Inc.
 
-TBD
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 ## Author Information
 
 This role was created in 2015 by [Tom Hite / VMware](http://www.vmware.com/).
-
-The work was inspired (though dramatically altered and upgraded) by an
-[article about the topic](https://derpops.bike/2014/06/07/ssh-key-rotation-with-ansible/).
-The link above is often broken, but when alive will give a reasonable view of the genisis.
