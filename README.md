@@ -32,7 +32,7 @@ Defaults to "{{ new_priv_key }}.pub" and that's sufficient for the vast majority
 
 ```
 ---
-- hosts: supervio
+- hosts: sshkeys
   sudo: True
   connection: local
   roles:
