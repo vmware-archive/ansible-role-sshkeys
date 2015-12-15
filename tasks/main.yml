@@ -70,6 +70,14 @@
 - name: Add new key to authorized_keys file
   authorized_key: key="{{ lookup('file', new_pub_key) }}"
                   user="{{ ansible_ssh_user }}" state=present
+                  exclusive=yes
+
+- name: Add new key to local authorized_keys file
+  authorized_key: key="{{ lookup('file', new_pub_key) }}"
+                  user="{{ sshkeys_user  }}" state=present
+  when: inventory_hostname == play_hosts[0]
+  sudo: False
+  delegate_to: localhost
 
 - name: Move new private key into place
   command: mv {{ new_priv_key }} "{{ new_priv_key | dirname }}/id_rsa"
