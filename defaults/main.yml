@@ -15,3 +15,5 @@
 #
 ---
 sshkeys_user: "{{ ansible_ssh_user }}"
+sshkeys_remote_user: "{{ ansible_ssh_user }}"
+sshkeys_remote_group: "{{ ansible_ssh_user }}"

@@ -14,8 +14,6 @@
 #  limitations under the License.
 #
 ---
-- debug: msg="{{ sshkeys_user }}"
-
 - name: Create .ssh directory on ansible host
   file: path="{{ new_priv_key | dirname }}" state=directory mode=0700
              owner="{{ sshkeys_user }}" group="{{ sshkeys_user }}"
@@ -25,7 +23,7 @@
 
 - name: Create .ssh directory on remote host
   file: path="~{{ ansible_ssh_user }}/.ssh" state=directory mode=0700
-             owner="{{ ansible_ssh_user }}" group="{{ ansible_ssh_user }}"
+             owner="{{ sshkeys_remote_user }}" group="{{ sshkeys_remote_group }}"
 
 - name: Assure known_hosts file exists to reduce superfluous logs
   copy: dest="{{ new_priv_key | dirname }}/known_hosts" content=''
@@ -69,8 +67,8 @@
 
 - name: Add new key to authorized_keys file
   authorized_key: key="{{ lookup('file', new_pub_key) }}"
-                  user="{{ ansible_ssh_user }}" state=present
-                  exclusive=yes
+                  user="{{ sshkeys_remote_user }}"
+                  state=present exclusive=yes
 
 - name: Add new key to local authorized_keys file
   authorized_key: key="{{ lookup('file', new_pub_key) }}"
@@ -90,8 +88,8 @@
 
 - name: Add new key to authorized_keys file
   authorized_key: key="{{ lookup('file', new_pub_key) }}"
-                  user="{{ ansible_ssh_user }}" state=present
-                  exclusive=yes
+                  user="{{ sshkeys_remote_user }}"
+                  state=present exclusive=yes
 
 - name: Move new public key into place
   command: mv {{ new_pub_key }} "{{ new_priv_key | dirname }}/id_rsa.pub"
