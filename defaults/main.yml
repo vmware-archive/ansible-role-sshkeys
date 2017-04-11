@@ -14,6 +14,19 @@
 #  limitations under the License.
 #
 ---
-sshkeys_user: "{{ ansible_ssh_user }}"
+sshkeys_local_user: "{{ lookup('env', 'USER') }}"
+#sshkeys_local_group: "{{ sshkeys_local_user }}"
 sshkeys_remote_user: "{{ ansible_ssh_user }}"
 sshkeys_remote_group: "{{ ansible_ssh_user }}"
+
+
+sshkeys_local_dir: "~{{ sshkeys_local_user | dirname }}/.ssh"
+sshkeys_remote_dir: "~{{ sshkeys_remote_user | dirname }}/.ssh"
+
+sshkeys_local_priv_key: "{{ sshkeys_local_dir }}/ansible_sshkey"
+sshkeys_local_pub_key: "{{ sshkeys_local_priv_key }}.pub"
+sshkeys_remote_priv_key: "{{ sshkeys_remote_dir }}/ansible_sshkey"
+sshkeys_remote_pub_key: "{{ sshkeys_remote_priv_key }}.pub"
+
+sshkeys_local_final_priv_key: "{{ sshkeys_local_dir }}/ansible_role_test_key"
+sshkeys_local_final_pub_key: "{{ sshkeys_local_final_priv_key }}.pub"

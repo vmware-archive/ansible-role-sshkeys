@@ -1,14 +1,44 @@
 ---
+ansible:
+  verbose: False
+  become: False
+  ansiblecfg_defaults:
+    retry_files_enabled: False
+    private_key_file: ~/.ssh/ansible_role_test_key
+
+molecule:
+  test:
+    sequence:
+      - destroy
+      - syntax
+      - create
+      - converge
+      - verify
+
+
 dependency:
   name: galaxy
 driver:
   name: docker
 docker:
   containers:
-    - name: sshkeys
-      image: ubuntu
+    - name: ubuntu-sshd
+      image: ubuntu-sshd
       image_version: latest
+      dockerfile: tests/dockerfiles/ubuntu-sshd
       ansible_groups:
         - group1
+      port_bindings:
+        22: 10122
+
+    - name: photon-sshd
+      image: photon-sshd
+      image_version: latest
+      dockerfile: tests/dockerfiles/photon-latest
+      port_bindings:
+        22: 10123
+      ansible_groups:
+        - group1
+
 verifier:
   name: testinfra

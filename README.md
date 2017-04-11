@@ -6,6 +6,11 @@ dramatically altered and upgraded) by an
 [article about the topic](https://derpops.bike/2014/06/07/ssh-key-rotation-with-ansible/)
 authored (posted online) by Jesse Keating, June 7, 2014.
 
+On every run, this role will 
+* create a new local ssh key,
+* copy that key to all remote hosts
+* replace our main local ssh key with the newly created key
+
 ## Requirements
 
 This role currently supports only Debian/Ubuntu distros.
