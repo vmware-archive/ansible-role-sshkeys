@@ -11,9 +11,9 @@ before_install:
 install:
   - pip install molecule
   - pip install docker
-  - mkdir -p .molecule/roles
-  - ln -s ../ .molecule/roles/sshkeys
 script:
+  - >
+    sed -i.orig 's;  playbook.*;  playbook: tests/travis-playbook.yml;' molecule.yml
   - molecule test
 
 notifications:
