@@ -3,18 +3,11 @@ FROM photon:latest
 RUN	tdnf makecache && \
 	tdnf install -y \
 	    binutils \
-	    gzip \
-	    libxml2 \
 	    linux-api-headers \
 	    openssh \
-	    procps-ng \
-	    python-xml \
 	    python2 \
 	    sed \
-	    shadow \
-	    systemd \
-	    yum \
-	    yum-metadata-parser
+	    shadow
 
 RUN /usr/bin/ssh-keygen -A
 

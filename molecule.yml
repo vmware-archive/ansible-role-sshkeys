@@ -2,6 +2,11 @@
 ansible:
   verbose: False
   become: False
+  playbook: tests/playbook.yml
+
+#  raw_env_vars:
+#    ANSIBLE_ROLES_PATH: .molecule/roles/:.molecule/../roles/
+
   ansiblecfg_defaults:
     retry_files_enabled: False
     private_key_file: ~/.ssh/ansible_role_test_key
@@ -22,23 +27,44 @@ driver:
   name: docker
 docker:
   containers:
-    - name: ubuntu-sshd
-      image: ubuntu-sshd
-      image_version: latest
-      dockerfile: tests/dockerfiles/ubuntu-sshd
-      ansible_groups:
-        - group1
-      port_bindings:
-        22: 10122
-
-    - name: photon-sshd
-      image: photon-sshd
+    - name: photon
+      image: photon
       image_version: latest
       dockerfile: tests/dockerfiles/photon-latest
-      port_bindings:
-        22: 10123
-      ansible_groups:
-        - group1
+      privileged: true
+      volume_mounts:
+        - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
+
+    - name: centos-7
+      image: centos
+      image_version: '7'
+      command: /usr/lib/systemd/systemd
+
+    - name: fedora-24
+      image: fedora
+      image_version: '24'
+      command: /lib/systemd/systemd
+
+    - name: opensuse-42
+      image: opensuse
+      image_version: '42.2'
+      command: /usr/lib/systemd/systemd
+
+    - name: ubuntu-xenial
+      image: ubuntu
+      image_version: '16.04'
+      command: /lib/systemd/systemd
+
+    - name: ubuntu-trusty
+      image: ubuntu
+      image_version: '14.04'
+      command: /sbin/init
+
+    - name: ubuntu-precise
+      image: ubuntu
+      image_version: '12.04'
+      command: /sbin/init
+
 
 verifier:
   name: testinfra
