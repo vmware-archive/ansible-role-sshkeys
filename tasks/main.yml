@@ -15,85 +15,92 @@
 #
 ---
 - name: Create .ssh directory on ansible host
-  file: path="{{ new_priv_key | dirname }}" state=directory mode=0700
-             owner="{{ sshkeys_user }}" group="{{ sshkeys_user }}"
-  when: inventory_hostname == play_hosts[0]
-  sudo: False
+  file: path="{{ sshkeys_local_dir }}" state=directory mode=0700
+             owner="{{ sshkeys_local_user }}"
+  become: False
   delegate_to: localhost
+  run_once: True
 
 - name: Create .ssh directory on remote host
-  file: path="~{{ ansible_ssh_user }}/.ssh" state=directory mode=0700
+  file: path="{{ sshkeys_remote_dir }}" state=directory mode=0700
              owner="{{ sshkeys_remote_user }}" group="{{ sshkeys_remote_group }}"
 
+
+- name: Check for existing local known_hosts
+  stat: path="{{ sshkeys_local_dir }}/known_hosts"
+  register: sshkeys_known_hosts
+  become: False
+  delegate_to: localhost
+  run_once: True
+
+
 - name: Assure known_hosts file exists to reduce superfluous logs
-  copy: dest="{{ new_priv_key | dirname }}/known_hosts" content=''
-  when: inventory_hostname == play_hosts[0]
-  sudo: False
+  file: path="{{ sshkeys_local_dir }}/known_hosts" state=touch mode=0644
+             owner="{{ sshkeys_local_user }}"
+  when: sshkeys_known_hosts.stat.exists is defined and not sshkeys_known_hosts.stat.exists
+  become: False
   delegate_to: localhost
+  run_once: True
 
-- name: Remove previous failed run private key creations
-  file: dest="{{ new_priv_key }}" state=absent
-  when: inventory_hostname == play_hosts[0]
-  sudo: False
+- name: Remove previous key creations
+  file: dest="{{ item }}" state=absent
+  become: False
   delegate_to: localhost
   ignore_errors: True
-
-- name: Remove previous failed run public keys
-  file: dest="{{ new_pub_key }}" state=absent
-  when: inventory_hostname == play_hosts[0]
-  sudo: False
-  delegate_to: localhost
-  ignore_errors: True
+  run_once: True
+  with_items:
+    - "{{ sshkeys_local_priv_key }}"
+    - "{{ sshkeys_local_pub_key }}"
 
 - name: Create new ssh key-pair
-  command: ssh-keygen -t rsa -N "" -C "ansible" -q -f "{{ new_priv_key }}"
-  when: inventory_hostname == play_hosts[0]
-  sudo: False
+  command: ssh-keygen -t rsa -N "" -C "ansible role sshkeys" -q -f "{{ sshkeys_local_priv_key }}"
+  become: False
   delegate_to: localhost
+  run_once: True
+  tags:
+    - skip_ansible_lint
 
-- name: Set ownership of new private key to ansible user
-  file: dest="{{ new_priv_key }}" state=file
-              owner="{{ sshkeys_user }}" group="{{ sshkeys_user }}"
-  when: inventory_hostname == play_hosts[0]
-  sudo: False
+- name: Set ownership of new key
+  file: dest="{{ item }}" state=file mode=0600
+              owner="{{ sshkeys_local_user }}"
+  become: False
   delegate_to: localhost
+  run_once: True
+  with_items:
+    - "{{ sshkeys_local_priv_key }}"
+    - "{{ sshkeys_local_pub_key }}"
 
-- name: Set ownership of new public key to ansible user
-  file: dest="{{ new_pub_key }}" state=file
-              owner="{{ sshkeys_user }}" group="{{ sshkeys_user }}"
-  when: inventory_hostname == play_hosts[0]
-  sudo: False
-  delegate_to: localhost
 
-- name: Add new key to authorized_keys file
-  authorized_key: key="{{ lookup('file', new_pub_key) }}"
+- name: Add new public key to remote authorized_keys file
+  authorized_key: key="{{ lookup('file', sshkeys_local_pub_key) }}"
                   user="{{ sshkeys_remote_user }}"
                   state=present exclusive=yes
 
-- name: Add new key to local authorized_keys file
-  authorized_key: key="{{ lookup('file', new_pub_key) }}"
-                  user="{{ sshkeys_user  }}" state=present
-  when: inventory_hostname == play_hosts[0]
-  sudo: False
+- name: Add new public key to local authorized_keys file
+  authorized_key: key="{{ lookup('file', sshkeys_local_pub_key) }}"
+                  user="{{ sshkeys_local_user  }}" state=present
+  become: False
   delegate_to: localhost
-
-- name: Move new private key into place
-  command: mv {{ new_priv_key }} "{{ new_priv_key | dirname }}/id_rsa"
-  when: inventory_hostname == play_hosts[0]
-  sudo: False
-  delegate_to: localhost
+  run_once: True
 
 - name: Use the new key for future connects
-  set_fact: ansible_private_ssh_key=new_priv_key
+  set_fact: ansible_private_ssh_key=sshkeys_local_priv_key
+  tags:
+    - skip_ansible_lint
 
-- name: Add new key to authorized_keys file
-  authorized_key: key="{{ lookup('file', new_pub_key) }}"
-                  user="{{ sshkeys_remote_user }}"
-                  state=present exclusive=yes
+
+- name: Move new private key into place
+  command: mv {{ sshkeys_local_priv_key }} "{{ sshkeys_local_final_priv_key }}"
+  become: False
+  delegate_to: localhost
+  run_once: True
+  tags:
+    - skip_ansible_lint
 
 - name: Move new public key into place
-  command: mv {{ new_pub_key }} "{{ new_priv_key | dirname }}/id_rsa.pub"
-  when: inventory_hostname == play_hosts[0]
-  sudo: False
+  command: mv {{ sshkeys_local_pub_key }} "{{ sshkeys_local_final_pub_key }}"
+  become: False
   delegate_to: localhost
-
+  run_once: True
+  tags:
+    - skip_ansible_lint

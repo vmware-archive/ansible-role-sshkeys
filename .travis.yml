@@ -1,0 +1,20 @@
+# Copyright © 2017 VMware, Inc. All Rights Reserved.
+---
+sudo: required
+language: python
+cache: pip
+services:
+  - docker
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -o Dpkg::Options::="--force-confold" --force-yes -y docker-engine
+install:
+  - pip install molecule
+  - pip install docker
+script:
+  - >
+    sed -i.orig 's;  playbook.*;  playbook: tests/travis-playbook.yml;' molecule.yml
+  - molecule test
+
+notifications:
+  webhooks: https://galaxy.ansible.com/api/v1/notifications/
