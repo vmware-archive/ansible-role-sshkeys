@@ -6,7 +6,7 @@ dramatically altered and upgraded) by an
 [article about the topic](https://derpops.bike/2014/06/07/ssh-key-rotation-with-ansible/)
 authored (posted online) by Jesse Keating, June 7, 2014.
 
-On every run, this role will 
+On every run, this role will
 * create a new local ssh key,
 * copy that key to all remote hosts
 * replace our main local ssh key with the newly created key
@@ -16,8 +16,12 @@ General use case is to run this role in a playbook using the
 future plays without password entry.  Re-running the same play without password
 will result in rotating the keys of the local ssh user and all remote hosts.
 
-A known issue resulting in loss of key sync when is
-trying to rotate keys while unable to reach all hosts.
+For ansible to use the generated ssh key, make sure ansible.cfg has
+a line like `private_key_file = your-private-key`, where `your-private-key` is the location
+used in the variable `sshkeys_local_final_pub_key`
+
+***When trying to rotate keys, unreachable hosts result in loss of key sync.
+You will need to re-sync those hosts using a password when they are reachable.***
 
 ## Requirements
 
@@ -29,16 +33,14 @@ Available variables can be found in [vars](defaults/main.yml).
 
 Key variables are:
 
-    sshkeys_local_user
-
-Local user who should own the ssh keys. By default, we'll use the user running the ansible play.  
+Local user who should own the ssh keys. By default, we'll use the user running the ansible play.
 
     sshkeys_remote_user
     sshkeys_remote_group
 
 User and group that we will ssh in as on the remote side.
 By default, these will be set to the `ansible_ssh_user`
-    
+
     sshkeys_local_final_priv_key: "{{ sshkeys_local_dir }}/ansible_role_test_key"
     sshkeys_local_final_pub_key: "{{ sshkeys_local_final_priv_key }}.pub"
 
@@ -47,7 +49,8 @@ ansible should use to connect to the remote hosts passwordless.
 
 ## Example playbook
 
-```
+```yamlex
+
 ---
 - hosts: sshhosts
   roles:
@@ -56,7 +59,7 @@ ansible should use to connect to the remote hosts passwordless.
 ```
 
 # License and Copyright
- 
+
 Copyright 2015-2017 VMware, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
