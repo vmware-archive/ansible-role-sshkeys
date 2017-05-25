@@ -33,6 +33,8 @@ Available variables can be found in [vars](defaults/main.yml).
 
 Key variables are:
 
+    sshkeys_local_user
+
 Local user who should own the ssh keys. By default, we'll use the user running the ansible play.
 
     sshkeys_remote_user
