@@ -1,0 +1,29 @@
+galaxy_info:
+  author: VMware DevOps & CNA
+  description: role for rotating ssh keys across fleet of servers
+  company: VMware
+  license: Apache 2.0
+  min_ansible_version: 2.2
+  issue_tracker_url: https://github.com/vmware/ansible-role-sshkeys/issues
+
+  platforms:
+  - name: Fedora
+    versions:
+    - 24
+
+  - name: Centos
+    version:
+    - 7
+
+  - name: Photon
+    version:
+    - 1.0
+
+  - name: Ubuntu
+    versions:
+    - trusty
+    - precise
+    - xenial
+
+  galaxy_tags:
+    - utility
